@@ -29,6 +29,12 @@ Promise.resolve().then(function() {
     return Movie.find({mpaaRating: 'PG-13' || 'PG'});
 }).then(function(result) {
     console.log('5):', result)
+
+    // I tried the above first, but saw that the mongoose documentation would do it this way:
+
+    return Movie.where({mpaaRating}).in(['PG', 'PG-13']);
+}).them(function(result) {
+    console.log('5', result)
     
     // 6) Find the first movie found with a releaseYear of 2018
     return Movie.findOne({releaseYear: '2018' });
@@ -65,16 +71,31 @@ Promise.resolve().then(function() {
     // 12) Add a reference to performer 'Bill Murray' to
     //     the movie Caddyshack's cast property and save.
     //     console.log the updated movie.
-    return Performer.findOne({ name: 'Bill Murray' }), 
+
+return Promise.all([
+    
+    Performer.findOne({ name: 'Bill Murray' }), 
     Movie.findOne({title: 'Caddyshack' })
+]); 
+// does it matter which one we find first??? i thought we would find bill first so we can reference him INTO the movie 
 }).then(function(results) {
     const bill = results[0];
     const caddyshack = results[1];
-    cadyshack.cast.ref(bill);
+}).then(function(results) {
+    caddyshack.cast.ref(bill);
     return caddyshack.save(); 
-})
-  console.log('12):', result)
-  
-  .then(function() {
+}).then(function(results) {
+    console.log('12):', result)  
+}).then(function() {
     process.exit();
   });
+
+//   Saw the solution code after and I believe it makes sense to reference it the way in the solution did becausea it's like a schema reference 
+// }).then(function(result){
+//     result[0].cast.push(result[1]);
+//     return result[0].save();
+// // }).then(function(result) {
+// //     console.log('12):', result);
+// // }).then(function() {
+// //     process.exit(); 
+// // });
